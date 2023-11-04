@@ -32,6 +32,11 @@ namespace RazorPagesMovie.Pages_Movies
 
         public async Task OnGetAsync()
         {
+            // Use LINQ to get a list of genres for the dropdown:
+            IQueryable<string> genreQuery = from m in _context.Movie
+                                            orderby m.Genre
+                                            select m.Genre;
+
             // Select all movies in the table (a list)
             // Note: This only _defines_ a query, it doesn't run it yet!
             var movies = from m in _context.Movie
@@ -42,6 +47,12 @@ namespace RazorPagesMovie.Pages_Movies
                 movies = movies.Where(s => s.Title.Contains(SearchString));
             }
 
+            if (!string.IsNullOrEmpty(MovieGenre))
+            {
+                movies = movies.Where(x => x.Genre == MovieGenre);
+            }
+
+            Genres = new SelectList(await genreQuery.Distinct().ToListAsync());
             Movie = await movies.ToListAsync();
 
             // if (_context.Movie != null)
